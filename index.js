@@ -54,8 +54,8 @@ function extractComps(npmOutput) {
                 if (!componentPath) return depNext(null, depFile);
                 const { buildPath, expression } = npmComponents[componentPath];
                 // 小程序组件 npm 专用包需要修改路径, 将 buildPath 文件夹修改为依赖的根目录
-                const buildRelativePath = path.relative(buildPath, originPath); // 文件在构建目录下的子路径
-                const outputPath = path.join(npmOutput, packageName, buildRelativePath);
+                const relativePath = path.relative(buildPath, originPath); // 文件在构建目录下的子路径
+                const outputPath = path.join(npmOutput, packageName, relativePath);
 
                 depFile.path = path.join(nodeModulesPath, outputPath);
                 depFile.base = nodeModulesPath;
@@ -87,9 +87,8 @@ function extractComps(npmOutput) {
 }
 
 /** extractDeps
- * 提取普通依赖树, 将依赖文件追加至 stream 流中
+ * 提取文件依赖树, 将依赖文件追加至 stream 流中
  */
-// TODO 支持分析 wxss 的依赖引入
 function extractDeps(npmOutput) {
     const extracted = []; // 已提取的依赖名
 
@@ -98,7 +97,7 @@ function extractDeps(npmOutput) {
         if (file.isNull()) return next(null, file);
 
         // 找出文件依赖树
-        const tree = lookupDependencies(file.path);
+        const tree = await lookupDependencies(file.path);
         // 展开树并去重处理为映射
         const depMap = lookupDependencies.treeToMap(tree);
         // 展开依赖文件路径列表
@@ -113,12 +112,13 @@ function extractDeps(npmOutput) {
 
                 const originPath = depFile.path;
                 const nodeModulesPath = getNodeModulesPath(originPath); // 找到所在的 node_modules 文件夹
-                const relativePath = path.relative(nodeModulesPath, originPath);
 
                 const matchedDep = depMap[originPath]; // 找到匹配依赖信息
                 if (!matchedDep) return depNext(null, depFile);
-                const { name: packageName, expression } = matchedDep;
-                const outputPath = path.join(npmOutput, relativePath);
+                const { name: packageName, expression, packagePath } = matchedDep;
+                // 通过相对路径获取输出路径
+                const relativePath = path.relative(packagePath, originPath);
+                const outputPath = path.join(npmOutput, packageName, relativePath);
 
                 depFile.path = path.join(nodeModulesPath, outputPath);
                 depFile.base = nodeModulesPath;
