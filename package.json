@@ -1,6 +1,6 @@
 {
   "name": "gulp-mp-npm",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "微信小程序开发者工具 “构建 npm” 功能的 gulp 版实现",
   "license": "UNLICENSE",
   "main": "index.js",
@@ -21,8 +21,10 @@
     "load-json-file": "^6.2.0",
     "precinct": "^6.2.0",
     "pumpify": "^2.0.1",
+    "read-package-tree": "^5.3.1",
     "resolve-from": "^5.0.0",
     "through2": "^3.0.1",
+    "tree-to-list": "^1.0.1",
     "vinyl-fs": "^3.0.3"
   },
   "devDependencies": {
