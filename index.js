@@ -12,7 +12,6 @@ const lookupDependencies = require('./lib/lookupDependencies');
 // const rewriteModulesPath = require('./lib/rewriteModulePath');
 
 const defaultNpmDirname = 'miniprogram_npm'; // 小程序官方方案默认输出路径
-const cwd = process.cwd();
 
 // 所有依赖包列表
 let pkgList = {};
@@ -32,7 +31,7 @@ module.exports = function mpNpm(destPath, npmDirname = defaultNpmDirname, option
         async function transform(file, enc, next) {
             if (!inited) {
                 // 找出所有依赖包
-                pkgList = await checkPackage.checkAllPkgs(cwd);
+                pkgList = await checkPackage.checkAllPkgs(file.cwd || process.cwd());
                 // 筛选出小程序专用 npm 依赖包
                 Object.keys(pkgList).forEach(pkgName => {
                     const pkg = pkgList[pkgName];
@@ -199,7 +198,7 @@ module.exports = function mpNpm(destPath, npmDirname = defaultNpmDirname, option
             if (npmDirname === defaultNpmDirname) {
                 // 那么当引入依赖的是模块主入口时，需将入口重写至 index.js
                 if (packageName === moduleId) {
-                    pathSplit[pathSplit.length - 1] = path.join(packageName, 'index.js');
+                    pathSplit[pathSplit.length - 1] = path.join(packageName, `index${file.extname || '.js'}`);
                     file.path = pathSplit.join(`/${npmDirname}/`);
                 }
             } else {
