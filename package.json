@@ -20,7 +20,6 @@
     "import-regex": "^1.1.0",
     "lead": "^1.0.0",
     "load-json-file": "^6.2.0",
-    "match-require": "^2.1.0",
     "precinct": "^6.2.0",
     "pumpify": "^2.0.1",
     "read-package-tree": "^5.3.1",
