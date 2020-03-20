@@ -1,5 +1,8 @@
 # gulp-mp-npm
 
+[![npm](https://img.shields.io/npm/v/gulp-mp-npm)](https://www.npmjs.com/package/gulp-mp-npm)
+[![download](https://img.shields.io/npm/dt/gulp-mp-npm)](https://www.npmjs.com/package/gulp-mp-npm)
+
 > 用以微信小程序提取 npm 依赖包的 gulp 插件
 
 ## 安装
@@ -18,6 +21,20 @@ gulp.src('src/**')
     .pipe(mpNpm())
     .pipe(gulp.dest('dist'));
 ```
+
+## API
+
+### mpNpm(options)
+
+`Stream` 输入原文件，输出依赖文件与修改后的原文件
+
+#### options.npmDirname
+
+类型: `String`\
+默认值: `'miniprogram_npm'`
+
+指定 `npm` 输出文件夹，默认为官方方案。如果自定义将会修改所有原文件引入依赖的路径
+
 
 ## 特点
 
