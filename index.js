@@ -3,13 +3,13 @@ const lead = require('lead');
 const pumpify = require('pumpify');
 const through = require('through2');
 const vfs = require('vinyl-fs');
-const changed = require('gulp-changed');
 const logger = require('fancy-log');
 const treeToList = require('tree-to-list');
 const checkPackage = require('./lib/checkPackage');
 const lookupComponents = require('./lib/lookupComponents');
 const lookupDependencies = require('./lib/lookupDependencies');
-// const rewriteModulesPath = require('./lib/rewriteModulePath');
+const rewriteModuleId = require('./lib/rewriteModuleId');
+const replaceNodeModulesPath = require('./lib/utils/replaceNodeModulesPath');
 
 const defaultNpmDirname = 'miniprogram_npm'; // 小程序官方方案默认输出路径
 
@@ -23,7 +23,9 @@ let inited = false;
 /**
  * gulp-mp-npm
  */
-module.exports = function mpNpm(destPath, npmDirname = defaultNpmDirname, options = {}) {
+module.exports = function mpNpm(options = {}) {
+    const npmDirname = options.npmDirname || defaultNpmDirname;
+
     /** init
      * 初始化
      */
@@ -47,7 +49,7 @@ module.exports = function mpNpm(destPath, npmDirname = defaultNpmDirname, option
     }
 
     /** extractComps
-     * 提取小程序专用 npm 依赖包, 将依赖文件追加至 stream 流中
+     * 提取小程序 npm 组件依赖, 将依赖文件追加至 stream 流中
      */
     function extractComps() {
         const extracted = {}; // 已提取的组件文件夹路径
@@ -108,7 +110,7 @@ module.exports = function mpNpm(destPath, npmDirname = defaultNpmDirname, option
     }
 
     /** extractDeps
-     * 提取文件依赖树, 将依赖文件追加至 stream 流中
+     * 提取普通依赖文件, 将依赖文件追加至 stream 流中
      */
     function extractDeps() {
         const extracted = []; // 已提取的依赖名
@@ -166,7 +168,6 @@ module.exports = function mpNpm(destPath, npmDirname = defaultNpmDirname, option
         async function transform(file, enc, next) {
             if (file.isNull()) return next(); // 不输出空文件
 
-            /* 调整 depFile.base 及 path */
             const { packageName, moduleId } = file;
 
             // 去掉小程序专用 npm 依赖包路径中的 buildPath 部分
@@ -186,27 +187,24 @@ module.exports = function mpNpm(destPath, npmDirname = defaultNpmDirname, option
             // 以 node_modules 分割路径
             const separator = '/node_modules/';
             const pathSplit = filepath.replace(/\\/g, '/').split(separator);
-            if (!packageName || pathSplit.length === 1) return next(); // 非 npm 文件
 
+            // 仅 npm 需要重写 file.base
             // 取 pathSplit[0] 作为 path.base 用于 dest 替换
-            file.base = pathSplit[0];
-            // 以 npmDirname 替换 node_modules 将路径拼接
-            file.path = pathSplit.join(`/${npmDirname}/`);
+            if (packageName && pathSplit.length > 1) file.base = pathSplit[0];
 
-            /* 不同方案下的文件路径修改 */
-            // 如果是导出文件夹为官方小程序 miniprogram_npm 方案
-            if (npmDirname === defaultNpmDirname) {
-                // 那么当引入依赖的是模块主入口时，需将入口重写至 index.js
-                if (packageName === moduleId) {
-                    pathSplit[pathSplit.length - 1] = path.join(packageName, `index${file.extname || '.js'}`);
-                    file.path = pathSplit.join(`/${npmDirname}/`);
-                }
-            } else {
-                // 否则需将原代码中引用依赖的表达式路径加上 npmOutput
-                // let fileContent = String(file.contents); // 获取文件内容
-                // fileContent = rewriteModulesPath(fileContent, npmOutput);
-                // file.contents = Buffer.from(fileContent);
+            // 重写 file.path
+            // 以 npmDirname 替换 node_modules 将路径拼接
+            file.path = replaceNodeModulesPath(filepath, npmDirname);
+
+            // 如果是导出文件夹为官方小程序 miniprogram_npm 方案 并且 当引入依赖的是模块主入口时
+            if (npmDirname === defaultNpmDirname && packageName && packageName === moduleId) {
+                // 需将入口重写至 index.js
+                pathSplit[pathSplit.length - 1] = path.join(packageName, `index${file.extname || '.js'}`);
+                file.path = pathSplit.join(`/${npmDirname}/`);
             }
+
+            // 重写源代码中模块引用依赖的moduleId
+            file = rewriteModuleId(file, pkgList, npmDirname);
 
             return next(null, file);
         }
@@ -217,19 +215,12 @@ module.exports = function mpNpm(destPath, npmDirname = defaultNpmDirname, option
     /**
      * start
      */
-    let pipeline = [
+    const pipeline = [
         init(),
         extractComps(),
         extractDeps(),
         adjustPath(),
     ];
-
-    if (destPath) {
-        pipeline = pipeline.concat([
-            changed(destPath),
-            vfs.dest(destPath),
-        ]);
-    }
 
     return lead(pumpify.obj(pipeline));
 };
