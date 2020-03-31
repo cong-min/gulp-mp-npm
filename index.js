@@ -19,6 +19,8 @@ let pkgList = {};
 const mpPkgMathMap = {};
 // 是否已初始化
 let inited = false;
+// 已提取的包文件夹路径
+const extracted = {};
 
 /**
  * gulp-mp-npm
@@ -52,8 +54,6 @@ module.exports = function mpNpm(options = {}) {
      * 提取小程序 npm 组件依赖, 将依赖文件追加至 stream 流中
      */
     function extractComps() {
-        const extracted = {}; // 已提取的组件文件夹路径
-
         async function transform(file, enc, next) {
             const stream = this;
             if (file.isNull()) return next(null, file);
@@ -113,8 +113,6 @@ module.exports = function mpNpm(options = {}) {
      * 提取普通依赖文件, 将依赖文件追加至 stream 流中
      */
     function extractDeps() {
-        const extracted = []; // 已提取的依赖名
-
         async function transform(file, enc, next) {
             const stream = this;
             if (file.isNull()) return next(null, file);
