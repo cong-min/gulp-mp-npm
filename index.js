@@ -17,10 +17,10 @@ const defaultNpmDirname = 'miniprogram_npm'; // 小程序官方方案默认输�
 let pkgList = {};
 // 小程序专用 npm 依赖包名与构建路径的映射, 将作为 resolve 时的 alias
 const mpPkgMathMap = {};
-// 是否已初始化
-let inited = false;
 // 已提取的包文件夹路径
 const extracted = {};
+// 初始化 Promise
+let initPromise = null;
 
 /**
  * gulp-mp-npm
@@ -33,18 +33,22 @@ module.exports = function mpNpm(options = {}) {
      */
     function init() {
         async function transform(file, enc, next) {
-            if (!inited) {
-                // 找出所有依赖包
-                pkgList = await checkPackage.checkAllPkgs(file.cwd || process.cwd());
-                // 筛选出小程序专用 npm 依赖包
-                Object.keys(pkgList).forEach(pkgName => {
-                    const pkg = pkgList[pkgName];
-                    if (pkg.isMiniprogramPkg && pkg.buildPath) {
-                        mpPkgMathMap[pkgName] = pkg.buildPath;
-                    }
-                });
-                inited = true;
+            // 只初始化一次
+            if (!initPromise) {
+                initPromise = (async () => {
+                    // 找出所有依赖包
+                    pkgList = await checkPackage.checkAllPkgs(file.cwd || process.cwd());
+                    // 筛选出小程序专用 npm 依赖包
+                    Object.keys(pkgList).forEach(pkgName => {
+                        const pkg = pkgList[pkgName];
+                        if (pkg.isMiniprogramPkg && pkg.buildPath) {
+                            mpPkgMathMap[pkgName] = pkg.buildPath;
+                        }
+                    });
+                })();
             }
+            await initPromise;
+
             next(null, file);
         }
         return through.obj(transform);
