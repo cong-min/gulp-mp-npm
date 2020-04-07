@@ -1,6 +1,6 @@
 {
   "name": "gulp-mp-npm",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "用以微信小程序提取 npm 依赖包的 gulp 插件",
   "license": "MIT",
   "main": "index.js",
