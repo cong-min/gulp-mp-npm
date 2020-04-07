@@ -33,6 +33,12 @@ module.exports = function mpNpm(options = {}) {
      */
     function init() {
         async function transform(file, enc, next) {
+            /* 准备 */
+            // 统一文件 base path
+            file.base = path.resolve(file.cwd, file.base);
+            file.path = path.resolve(file.cwd, file.path);
+
+            /* 初始化 */
             // 只初始化一次
             if (!initPromise) {
                 initPromise = (async () => {
@@ -121,8 +127,9 @@ module.exports = function mpNpm(options = {}) {
             const stream = this;
             if (file.isNull()) return next(null, file);
 
+            const fileContent = String(file.contents); // 获取文件内容
             // 找出文件依赖树
-            const tree = await lookupDependencies(file.path, {
+            const tree = await lookupDependencies(file.path, fileContent, {
                 alias: mpPkgMathMap
             });
             // 展开树并去重处理为映射
@@ -147,8 +154,8 @@ module.exports = function mpNpm(options = {}) {
                     depFile.moduleId = moduleId;
 
                     // 记录提取
-                    if (!extracted[depFile.path]) {
-                        extracted[depFile.path] = true;
+                    if (!extracted[originPath]) {
+                        extracted[originPath] = true;
                         // 打印出根首层依赖的日志
                         if (tree[originPath]) logger.info('[mp-npm]', `Extracted \`${moduleId}\``);
                     }
