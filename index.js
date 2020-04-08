@@ -204,17 +204,14 @@ module.exports = function mpNpm(options = {}) {
             // 仅 npm 需要重写 file.base
             // 取 pathSplit[0] 作为 path.base 用于 dest 替换
             if (packageName && pathSplit.length > 1) file.base = pathSplit[0];
+            // 是否为依赖引用的主入口，如果是获取主入口在包内的相对路径
+            file.isPackageMain = packageName && packageName === moduleId
+                ? pathSplit[pathSplit.length - 1].replace(new RegExp(`^${packageName}/`), '')
+                : false;
 
             // 重写 file.path
             // 以 npmDirname 替换 node_modules 将路径拼接
             file.path = replaceNodeModulesPath(filepath, npmDirname);
-
-            // 如果是导出文件夹为官方小程序 miniprogram_npm 方案 并且 当引入依赖的是模块主入口时
-            if (npmDirname === defaultNpmDirname && packageName && packageName === moduleId) {
-                // 需将入口重写至 index.js
-                pathSplit[pathSplit.length - 1] = path.join(packageName, `index${file.extname || '.js'}`);
-                file.path = pathSplit.join(`/${npmDirname}/`);
-            }
 
             // 重写源代码中模块引用依赖的moduleId
             file = rewriteModuleId(file, pkgList, npmDirname);
