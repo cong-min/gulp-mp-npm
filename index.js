@@ -4,6 +4,7 @@ const pumpify = require('pumpify');
 const through = require('through2');
 const vfs = require('vinyl-fs');
 const logger = require('fancy-log');
+const colors = require('ansi-colors');
 const treeToList = require('tree-to-list');
 const checkPackage = require('./lib/checkPackage');
 const lookupComponents = require('./lib/lookupComponents');
@@ -11,7 +12,10 @@ const lookupDependencies = require('./lib/lookupDependencies');
 const rewriteModuleId = require('./lib/rewriteModuleId');
 const replaceNodeModulesPath = require('./lib/utils/replaceNodeModulesPath');
 
-const defaultNpmDirname = 'miniprogram_npm'; // 小程序官方方案默认输出路径
+const log = (...args) => logger.info(`[${colors.gray('mp-npm')}]`, ...args);
+
+// 小程序官方方案默认输出路径
+const defaultNpmDirname = 'miniprogram_npm';
 
 // 所有依赖包列表
 let pkgList = {};
@@ -108,7 +112,7 @@ module.exports = function mpNpm(options = {}) {
                         if (!extracted[componentPath]) {
                             extracted[componentPath] = true;
                             // 打印出根首层依赖的日志
-                            if (compTree[componentPath]) logger.info('[mp-npm]', `Extracted \`${moduleId}\``);
+                            if (compTree[componentPath]) log(`Extracted \`${colors.cyan(moduleId)}\``);
                         }
                     });
                     next(null, file);
@@ -157,7 +161,7 @@ module.exports = function mpNpm(options = {}) {
                     if (!extracted[originPath]) {
                         extracted[originPath] = true;
                         // 打印出根首层依赖的日志
-                        if (tree[originPath]) logger.info('[mp-npm]', `Extracted \`${moduleId}\``);
+                        if (tree[originPath]) log(`Extracted \`${colors.cyan(moduleId)}\``);
                     }
 
                     // stream.push 追加文件
