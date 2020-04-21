@@ -1,6 +1,6 @@
 {
   "name": "gulp-mp-npm",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "description": "用以微信小程序提取 npm 依赖包的 gulp 插件",
   "license": "MIT",
   "main": "index.js",
@@ -34,15 +34,22 @@
     "vinyl-fs": "^3.0.3"
   },
   "devDependencies": {
-    "del": "^5.1.0",
     "eslint": "^6.8.0",
     "eslint-config-soda-works": "^1.2.0",
+    "glob": "^7.1.6",
     "gulp": "^4.0.2",
     "husky": "^4.2.3",
+    "jest-extended": "^0.11.5",
     "lint-staged": "^10.0.8",
-    "lodash": "^4.17.15",
-    "normalize.css": "^8.0.1",
-    "weui-miniprogram": "^0.2.2"
+    "lodash": "=4.17.15",
+    "miniprogram-api-promise": "=1.0.4",
+    "weui-miniprogram": "=0.2.2",
+    "weui-wxss": "=2.3.0"
+  },
+  "jest": {
+    "setupFilesAfterEnv": [
+      "jest-extended"
+    ]
   },
   "husky": {
     "hooks": {

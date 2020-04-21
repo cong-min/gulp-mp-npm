@@ -1,0 +1,3 @@
+@import './miniprogram_npm/weui-wxss/index.wxss';
+@import url('./miniprogram_npm/weui-wxss/dist/style/widget/weui-button/weui-button.wxss');
+@import './local-dep/style.wxss';

@@ -11,16 +11,76 @@
 $ npm i -D gulp-mp-npm
 ```
 
-## 使用
+## 快速开始
+
+根据实际项目需求在 `gulpfile.js` 中进行如下配置：
+
+### 如果项目以 `wxss` `js` `json` 等文件开发
 
 ```js
 const gulp = require('gulp');
 const mpNpm = require('gulp-mp-npm')
 
-gulp.src('src/**')
+/** `gulp npm`
+ * 提取npm
+ * */
+const ts = () => gulp.src('src/**')
     .pipe(mpNpm())
     .pipe(gulp.dest('dist'));
 ```
+
+### 如果项目需要编译 `ts` `less` 等文件
+
+```js
+const gulp = require('gulp');
+const gulpTs = require('gulp-typescript');
+const gulpLess = require('gulp-less');
+const rename = require('gulp-rename');
+const mpNpm = require('gulp-mp-npm');
+const tsProject = gulpTs.createProject('tsconfig.json');
+
+/** `gulp ts`
+ * 编译ts
+ * */
+const ts = () => gulp.src('src/**/*.ts')
+    .pipe(tsProject()) // 编译ts
+    .pipe(mpNpm()) // 分析提取 ts 中用到的依赖
+    .pipe(gulp.dest('dist'));
+
+/** `gulp js`
+ * 解析js
+ * */
+const js = () => gulp.src('src/**/*.js')
+    .pipe(mpNpm()) // 分析提取 js 中用到的依赖
+    .pipe(gulp.dest('dist'));
+
+/** `gulp json`
+ * 解析json
+ * */
+const json = () => gulp.src('src/**/*.json')
+    .pipe(mpNpm()) // 分析 usingComponents 字段提取 npm 组件
+    .pipe(gulp.dest('dist'));
+
+/** `gulp less`
+ * 编译less
+ * */
+const less = () => gulp.src('src/**/*.less')
+    .pipe(gulpLess()) // 编译less
+    .pipe(rename({ extname: '.wxss' }))
+    .pipe(mpNpm()) // 分析提取 less 中用到的依赖
+    .pipe(gulp.dest('dist'));
+
+/** `gulp wxss`
+ * 解析wxss
+ * */
+const wxss = () => gulp.src('src/**/*.wxss')
+    .pipe(mpNpm()) // 分析依赖
+    .pipe(gulp.dest('dist'));
+```
+
+详细用例可见 [test](./test) 文件夹
+
+项目实战配置可参照 [微信小程序 gulpfile 最佳实践](https://github.com/mcc108/mp-gulpfile)
 
 ## API
 
