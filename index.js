@@ -21,8 +21,6 @@ const defaultNpmDirname = 'miniprogram_npm';
 let pkgList = {};
 // 小程序专用 npm 依赖包名与构建路径的映射, 将作为 resolve 时的 alias
 const mpPkgMathMap = {};
-// 已提取的包文件夹路径
-const extracted = {};
 // 初始化 Promise
 let initPromise = null;
 
@@ -31,6 +29,9 @@ let initPromise = null;
  */
 module.exports = function mpNpm(options = {}) {
     const npmDirname = options.npmDirname || defaultNpmDirname;
+
+    // 已提取的包文件夹路径
+    const extracted = {};
 
     /** init
      * 初始化
@@ -47,7 +48,7 @@ module.exports = function mpNpm(options = {}) {
             if (!initPromise) {
                 initPromise = (async () => {
                     // 找出所有依赖包
-                    pkgList = await checkPackage.checkAllPkgs(file.cwd || process.cwd());
+                    pkgList = await checkPackage.checkAllPkgs(process.cwd());
                     // 筛选出小程序专用 npm 依赖包
                     Object.keys(pkgList).forEach(pkgName => {
                         const pkg = pkgList[pkgName];
@@ -190,7 +191,7 @@ module.exports = function mpNpm(options = {}) {
                 // build 相对路径
                 const buildRelativePath = pkg.isMiniprogramPkg
                     ? path.relative(pkg.path, pkg.buildPath) : '';
-                    // 替换路径
+                // 替换路径
                 filepath = filepath.replace(
                     path.join('node_modules', pkgName, buildRelativePath),
                     path.join('node_modules', pkgName)
