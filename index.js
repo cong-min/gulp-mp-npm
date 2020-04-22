@@ -204,7 +204,12 @@ module.exports = function mpNpm(options = {}) {
 
             // 仅 npm 需要重写 file.base
             // 取 pathSplit[0] 作为 path.base 用于 dest 替换
-            if (packageName && pathSplit.length > 1) file.base = pathSplit[0];
+            if (packageName && pathSplit.length > 1) {
+                file.base = npmDirname === defaultNpmDirname
+                    ? pathSplit[0]
+                    // 如果非官方方案, 则无多层依赖结构
+                    : pathSplit.slice(0, pathSplit.length - 1).join(separator);
+            }
             // 是否为依赖引用的主入口，如果是获取主入口在包内的相对路径
             file.isPackageMain = packageName && packageName === moduleId
                 ? pathSplit[pathSplit.length - 1].replace(new RegExp(`^${packageName}/`), '')
@@ -213,6 +218,7 @@ module.exports = function mpNpm(options = {}) {
             // 重写 file.path
             // 以 npmDirname 替换 node_modules 将路径拼接
             file.path = replaceNodeModulesPath(filepath, npmDirname);
+            file.base = replaceNodeModulesPath(file.base, npmDirname);
 
             // 重写源代码中模块引用依赖的moduleId
             file = rewriteModuleId(file, pkgList, npmDirname);
