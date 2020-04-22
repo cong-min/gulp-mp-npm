@@ -3,6 +3,7 @@ const fs = require('fs');
 const gulp = require('gulp');
 const glob = require('glob');
 const diff = require('lodash/difference')
+const jestDiff = require('jest-diff').default;
 const utils = require('./utils');
 jest.mock('console');
 const mpNpm = require('../index');
@@ -43,7 +44,11 @@ describe('单元测试', () => {
                 // 文件内容是否符合预期
                 const actualContent = utils.normaliseEOL(file.contents)
                 const expectContent = utils.normaliseEOL(fs.readFileSync(expectPath, 'utf8'));
-                expect(actualContent).toBe(expectContent);
+                if (actualContent.length > 5000 || expectContent.length > 5000) {
+                    expect(actualContent.length).toBe(expectContent.length);
+                } else {
+                    expect(actualContent).toBe(expectContent);
+                }
                 actualFiles.push(expectPath);
             })
             .on('end', () => {
@@ -75,6 +80,14 @@ describe('单元测试', () => {
         testOuput('import-special-dep.wxss', 'import-special-dep.wxss/', done);
     });
 
+    test('引入多重深层 npm 依赖及带命名空间的 npm 依赖', (done) => {
+        testOuput('import-deep-scope-dep.js', 'import-deep-scope-dep.js/', done);
+    });
+
+    test('使用 require 进行依赖引入', (done) => {
+        testOuput('require-dep.js', 'require-dep.js/', done);
+    });
+
     test('自定义 npmDirname 提取文件夹', (done) => {
         const mpNpmOptions = { npmDirname: 'dist' };
         testOuput([
@@ -83,6 +96,8 @@ describe('单元测试', () => {
             'import-special-dep.js',
             'import-special-dep.json',
             'import-special-dep.wxss',
+            'import-deep-scope-dep.js',
+            'require-dep.js'
         ], 'customize-npmDirname', done, { mpNpmOptions });
     });
 
