@@ -90,7 +90,7 @@ module.exports = function mpNpm(options = {}) {
 
             if (!pathGlobs.length) return next(null, file);
 
-            return lead(vfs.src(pathGlobs)
+            return lead(vfs.src(pathGlobs, { cwd: file.cwd, base: file.cwd })
                 // 添加信息
                 .pipe(through.obj((depFile, depEnc, depNext) => {
                     if (depFile.isNull()) return depNext(null, depFile);
@@ -144,7 +144,7 @@ module.exports = function mpNpm(options = {}) {
 
             if (!depPaths.length) return next(null, file);
 
-            return lead(vfs.src(depPaths)
+            return lead(vfs.src(depPaths, { cwd: file.cwd, base: file.cwd })
                 // 添加信息
                 .pipe(through.obj((depFile, depEnc, depNext) => {
                     if (depFile.isNull()) return depNext(null, depFile);
