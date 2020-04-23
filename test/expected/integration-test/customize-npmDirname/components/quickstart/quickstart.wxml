@@ -1,0 +1,7 @@
+<!-- quickstart.wxml -->
+<view class="pre">
+    <text class="comment"># 启动监听服务</text>
+    <text class="code">$ npm start</text>
+    <text class="comment"># 单次构建</text>
+    <text class="code">$ npm run build</text>
+</view>

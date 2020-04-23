@@ -1,0 +1,1 @@
+{"version":3,"sources":["pages/index/index.less"],"names":[],"mappings":";AACA,SACI;EACI,aAAA;EACA,cAAA","sourcesContent":["/* index.less */\n.main-msg {\n    .weui-msg__icon-img {\n        width: 250rpx;\n        height: 250rpx;\n    }\n}\n"],"file":"index.wxss"}

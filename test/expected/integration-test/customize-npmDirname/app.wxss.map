@@ -1,0 +1,1 @@
+{"version":3,"sources":["app.less"],"names":[],"mappings":";QACc;AAEd;EACI,aAAA;EACA,sBAAA;EACA,oBAAA","sourcesContent":["/* app.less **/\n@import (css) 'weui-miniprogram/weui-wxss/dist/style/weui.wxss';\n\npage {\n    display: flex;\n    flex-direction: column;\n    align-items: stretch;\n}\n"],"file":"app.wxss"}

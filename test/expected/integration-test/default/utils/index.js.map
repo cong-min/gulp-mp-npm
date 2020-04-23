@@ -1,0 +1,1 @@
+{"version":3,"sources":["utils/index.ts"],"names":[],"mappings":";;AAAA,mEAAkE;AAAzD,iDAAA,YAAY,CAAA;AAAE,8CAAA,SAAS,CAAA;AAChC,+BAA6B","file":"index.js","sourcesContent":["export { promisifyAll, promisify } from 'miniprogram-api-promise';\nexport * as mitt from 'mitt';\n"]}

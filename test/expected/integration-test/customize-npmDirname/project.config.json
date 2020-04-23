@@ -1,0 +1,39 @@
+{
+  "appid": "wxb243b08c8718e2c3",
+  "projectname": "mp-gulp-template",
+  "libVersion": "2.8.3",
+  "miniprogramRoot": "/",
+  "setting": {
+    "urlCheck": false,
+    "es6": true,
+    "enhance": true,
+    "postcss": true,
+    "preloadBackgroundData": false,
+    "minified": true,
+    "newFeature": true,
+    "coverView": true,
+    "nodeModules": true,
+    "autoAudits": false,
+    "showShadowRootInWxmlPanel": true,
+    "scopeDataCheck": false,
+    "uglifyFileName": false,
+    "checkInvalidKey": true,
+    "checkSiteMap": true,
+    "uploadWithSourceMap": true,
+    "babelSetting": {
+      "ignore": [],
+      "disablePlugins": [],
+      "outputPath": ""
+    },
+    "bundle": true
+  },
+  "compileType": "miniprogram",
+  "simulatorType": "wechat",
+  "simulatorPluginLibVersion": {},
+  "scripts": {
+    "beforeCompile": "",
+    "beforePreview": "npm run build",
+    "beforeUpload": "npm run build"
+  },
+  "condition": {}
+}

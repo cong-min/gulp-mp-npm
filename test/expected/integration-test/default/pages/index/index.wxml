@@ -1,0 +1,31 @@
+<!--index.wxml-->
+<view class="container">
+    <mp-msg
+        class="main-msg"
+        ext-class="main-msg"
+        title="小程序 Gulp 模板"
+        icon="/assets/img/gulp.png">
+        <view slot="desc" class="main-content">
+            <view>创建自 github.com/mcc108/mp-gulpfile</view>
+            <view>微信小程序 gulpfile 最佳实践</view>
+        </view>
+        <view slot="extend">
+            <view>🚀 轻量极速构建</view>
+            <view>🧰 支持 TypeScript, Less</view>
+            <view>🗃 按需提取 npm 依赖</view>
+            <view>🎡 支持提取小程序 npm 包组件</view>
+            <view>🌁 图片压缩</view>
+        </view>
+        <view wx:if="{{ !start }}" slot="handle">
+            <button class="weui-btn" type="primary" bindtap="quickstart">快速开始</button>
+        </view>
+        <block wx:else>
+            <view slot="handle">
+                <quickstart />
+            </view>
+            <view slot="footer">
+                <view class="weui-footer__text">更多指引可查阅 github 文档</view>
+            </view>
+        </block>
+    </mp-msg>
+</view>

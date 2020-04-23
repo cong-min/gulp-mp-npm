@@ -1,0 +1,19 @@
+.pre {
+  width: 520rpx;
+  margin: 0 auto;
+  padding: 40rpx 50rpx;
+  border-radius: 10rpx;
+  background-color: #eee;
+  font-size: 14px;
+  font-family: SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace;
+  line-height: 1.5;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+}
+.code {
+  color: #222;
+}
+.comment {
+  color: #999;
+}
