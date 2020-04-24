@@ -48,6 +48,7 @@
     "gulp-sourcemaps": "^2.6.5",
     "gulp-typescript": "^6.0.0-alpha.1",
     "husky": "^4.2.3",
+    "jest": "^25.4.0",
     "jest-extended": "^0.11.5",
     "jsonfile": "^6.0.1",
     "lint-staged": "^10.0.8",
@@ -55,6 +56,7 @@
     "miniprogram-api-promise": "=1.0.4",
     "miniprogram-api-typings": "=2.10.4",
     "mitt": "=1.2.0",
+    "mkdirp": "^1.0.4",
     "typescript": "^3.8.3",
     "weui-miniprogram": "=0.2.2",
     "weui-wxss": "=2.3.0"

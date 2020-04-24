@@ -3,6 +3,7 @@ const fs = require('fs');
 const del = require('del');
 const gulp = require('gulp');
 const glob = require('glob');
+const mkdirp = require('mkdirp');
 const diff = require('lodash/difference')
 const utils = require('./utils');
 jest.mock('console');
@@ -15,7 +16,7 @@ const watchTemp = path.join(__dirname, 'temp/watch');
 // config
 jest.setTimeout(30000);
 beforeEach(() => {
-    if (!fs.existsSync(watchTemp)) fs.mkdirSync(watchTemp);
+    mkdirp.sync(watchTemp);
 });
 
 // tests
