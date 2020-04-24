@@ -2,6 +2,7 @@
 
 [![npm](https://img.shields.io/npm/v/gulp-mp-npm)](https://www.npmjs.com/package/gulp-mp-npm)
 [![download](https://img.shields.io/npm/dt/gulp-mp-npm)](https://www.npmjs.com/package/gulp-mp-npm)
+[![codecov](https://img.shields.io/codecov/c/github/mcc108/gulp-mp-npm)](https://codecov.io/gh/mcc108/gulp-mp-npm)
 
 > 用以微信小程序提取 npm 依赖包的 gulp 插件
 
