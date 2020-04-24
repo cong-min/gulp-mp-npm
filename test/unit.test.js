@@ -11,7 +11,7 @@ const unitFixtures = path.join(__dirname, 'fixtures/unit-test');
 const unitExpected = path.join(__dirname, 'expected/unit-test');
 
 // config
-jest.setTimeout(10000);
+jest.setTimeout(20000);
 
 // tests
 describe('单元测试', () => {
