@@ -1,7 +1,6 @@
 temp
 coverage
 .DS_Store
-package-lock.json
 node_modules
 
 # Log files
