@@ -1,4 +1,5 @@
 const path = require('path');
+const slash = require('slash');
 const fs = require('fs');
 const glob = require('glob');
 const diff = require('lodash/difference')
@@ -36,29 +37,32 @@ describe('集成测试', () => {
 function testIntegration(output, done) {
     const tempOutput = path.join(integrationTemp, output)
     const expectedOutput = path.join(integrationExpected, output);
-    global.dist = tempOutput;
     const gulpfilePath = path.join(integrationFixtures, 'gulpfile.js');
+    global.src = path.join(integrationFixtures, 'src');
+    global.dist = tempOutput;
     const gulpfile = jest.requireActual(gulpfilePath);
     gulpfile.build(() => {
-        compareOutput(tempOutput, expectedOutput, done);
+        setTimeout(() => {
+            compareOutput(tempOutput, expectedOutput, done);
+        }, 2000);
     });
 }
 
 // 对比结果
 function compareOutput(temp, expected, done) {
     const actualFiles = [];
-    const expectFiles = glob.sync(`${expected}/**`, { absolute: true, nodir: true }); // 预期文件目录结构
-    const tempFiles = glob.sync(`${temp}/**`, { absolute: true, nodir: true }); // 临时输出的文件
+    const expectFiles = glob.sync(`${slash(expected)}/**`, { absolute: true, nodir: true }); // 预期文件目录结构
+    const tempFiles = glob.sync(`${slash(temp)}/**`, { absolute: true, nodir: true }); // 临时输出的文件
 
     tempFiles.forEach(filepath => {
         expect(filepath).not.toBeNil();
         // 找到对应预期文件
-        const expectPath = filepath.replace(integrationTemp, integrationExpected);
+        const expectPath = filepath.replace(slash(integrationTemp), slash(integrationExpected));
         expect(fs.existsSync(expectPath) ? expectPath : undefined)
             .toBe(expectPath);
         // 文件内容是否符合预期
-        const actualContent = utils.normaliseEOL(fs.readFileSync(filepath, 'utf8'))
-        const expectContent = utils.normaliseEOL(fs.readFileSync(expectPath, 'utf8'));
+        const actualContent = utils.normaliseEOL(fs.readFileSync(filepath, 'utf8'), 'strict')
+        const expectContent = utils.normaliseEOL(fs.readFileSync(expectPath, 'utf8'), 'strict');
         if (actualContent.length > 5000 || expectContent.length > 5000) {
             expect(actualContent.length).toBe(expectContent.length);
         } else {

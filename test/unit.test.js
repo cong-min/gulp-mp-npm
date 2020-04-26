@@ -1,4 +1,5 @@
 const path = require('path');
+const slash = require('slash');
 const fs = require('fs');
 const gulp = require('gulp');
 const glob = require('glob');
@@ -92,7 +93,7 @@ function testUnitCase(input, output, done, options = {}) {
             } else {
                 expect(actualContent).toBe(expectContent);
             }
-            actualFiles.push(expectPath);
+            actualFiles.push(slash(expectPath));
         })
         .on('end', () => {
             // 实际比预期多出的文件

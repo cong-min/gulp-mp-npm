@@ -13,8 +13,8 @@ const mpNpm = require('../../../index');
 const resolve = (...args) => path.resolve(__dirname, ...args);
 
 /* config */
-const src = resolve('src');
-const dist = global.dist || resolve('.miniprogram');
+const src = global.src || 'src';
+const dist = global.dist || '.miniprogram';
 
 const sourcemap = {
     ts: true, // 是否开启 ts sourcemap

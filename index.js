@@ -1,4 +1,5 @@
 const path = require('path');
+const slash = require('slash');
 const lead = require('lead');
 const pumpify = require('pumpify');
 const through = require('through2');
@@ -86,7 +87,7 @@ module.exports = function mpNpm(options = {}) {
             // 展开依赖包构建路径列表
             const pathGlobs = Object.keys(npmComponents)
                 .filter(e => !extracted[e])
-                .map(compPath => path.join(compPath, '**'));
+                .map(compPath => `${slash(compPath)}/**`);
 
             if (!pathGlobs.length) return next(null, file);
 
@@ -149,9 +150,9 @@ module.exports = function mpNpm(options = {}) {
                 .pipe(through.obj((depFile, depEnc, depNext) => {
                     if (depFile.isNull()) return depNext(null, depFile);
 
-                    const originPath = depFile.path;
+                    const slashPath = slash(depFile.path);
 
-                    const matchedDep = depMap[originPath]; // 找到匹配依赖信息
+                    const matchedDep = depMap[slashPath]; // 找到匹配依赖信息
                     if (!matchedDep) return depNext(null, depFile);
 
                     const { name: packageName, moduleId } = matchedDep;
@@ -159,10 +160,10 @@ module.exports = function mpNpm(options = {}) {
                     depFile.moduleId = moduleId;
 
                     // 记录提取
-                    if (!extracted[originPath]) {
-                        extracted[originPath] = true;
+                    if (!extracted[slashPath]) {
+                        extracted[slashPath] = true;
                         // 打印出根首层依赖的日志
-                        if (tree[originPath]) log(`Extracted \`${colors.cyan(moduleId)}\``);
+                        if (tree[slashPath]) log(`Extracted \`${colors.cyan(moduleId)}\``);
                     }
 
                     // stream.push 追加文件
@@ -185,30 +186,32 @@ module.exports = function mpNpm(options = {}) {
             const { packageName, moduleId } = file;
 
             // 去掉小程序专用 npm 依赖包路径中的 buildPath 部分
-            let filepath = file.path;
+            let filepath = slash(file.path);
             Object.keys(mpPkgMathMap).forEach((pkgName) => {
                 const pkg = pkgList[pkgName];
                 // build 相对路径
                 const buildRelativePath = pkg.isMiniprogramPkg
-                    ? path.relative(pkg.path, pkg.buildPath) : '';
+                    ? path.posix.relative(pkg.path, pkg.buildPath) : '';
                 // 替换路径
                 filepath = filepath.replace(
-                    path.join('node_modules', pkgName, buildRelativePath),
-                    path.join('node_modules', pkgName)
+                    path.posix.join('node_modules', pkgName, buildRelativePath),
+                    path.posix.join('node_modules', pkgName)
                 );
             });
 
             // 以 node_modules 分割路径
             const separator = '/node_modules/';
-            const pathSplit = filepath.replace(/\\/g, '/').split(separator);
+            const pathSplit = filepath.split(separator);
 
             // 仅 npm 需要重写 file.base
             // 取 pathSplit[0] 作为 path.base 用于 dest 替换
             if (packageName && pathSplit.length > 1) {
-                file.base = npmDirname === defaultNpmDirname
-                    ? pathSplit[0]
-                    // 如果非官方方案, 则无多层依赖结构
-                    : pathSplit.slice(0, pathSplit.length - 1).join(separator);
+                file.base = path.normalize(
+                    npmDirname === defaultNpmDirname
+                        ? pathSplit[0]
+                        // 如果非官方方案, 则无多层依赖结构
+                        : pathSplit.slice(0, pathSplit.length - 1).join(separator)
+                );
             }
             // 是否为依赖引用的主入口，如果是获取主入口在包内的相对路径
             file.isPackageMain = packageName && packageName === moduleId
@@ -217,8 +220,8 @@ module.exports = function mpNpm(options = {}) {
 
             // 重写 file.path
             // 以 npmDirname 替换 node_modules 将路径拼接
-            file.path = replaceNodeModulesPath(filepath, npmDirname);
-            file.base = replaceNodeModulesPath(file.base, npmDirname);
+            file.path = path.normalize(replaceNodeModulesPath(filepath, npmDirname));
+            file.base = path.normalize(replaceNodeModulesPath(file.base, npmDirname));
 
             // 重写源代码中模块引用依赖的moduleId
             file = rewriteModuleId(file, pkgList, npmDirname);

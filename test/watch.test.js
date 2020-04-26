@@ -1,4 +1,5 @@
 const path = require('path');
+const slash = require('slash');
 const fs = require('fs');
 const del = require('del');
 const gulp = require('gulp');
@@ -52,7 +53,7 @@ describe('watch 模式', () => {
 function testWatch(tempFile, expectedDir, oldContent, newContent, done) {
     createTempFile(tempFile, oldContent);
     const watcher = gulp.on('error', done)
-        .watch(tempFile, { cwd: watchTemp }, (cb) => {
+        .watch(tempFile, { cwd: watchTemp, delay: 500 }, (cb) => {
             testTempCase(tempFile, expectedDir, (res) => {
                 watcher.close();
                 cb();
@@ -63,28 +64,28 @@ function testWatch(tempFile, expectedDir, oldContent, newContent, done) {
 }
 
 function readUnitCaseFile(originFile) {
-    const filePath = path.join(unitFixtures, originFile);
+    const filePath = path.resolve(unitFixtures, originFile);
     return fs.readFileSync(filePath, 'utf8');
 }
 
 function createTempFile(tempFile, content) {
-    const filePath = path.join(watchTemp, tempFile);
+    const filePath = path.resolve(watchTemp, tempFile);
     del.sync(filePath);
-    fs.writeFileSync(filePath, content);
+    updateTempFile(filePath, content);
 }
 
 function updateTempFile(tempFile, content) {
-    const filePath = path.join(watchTemp, tempFile);
+    const filePath = path.resolve(watchTemp, tempFile);
     setTimeout(() => {
         fs.writeFileSync(filePath, content);
-    }, 125);
+    }, 500);
 }
 
 // 执行并测试单元用例
 function testTempCase(input, output, done, options = {}) {
     const actualFiles = []; // 实际文件目录结构
-    const expectFiles = glob.sync(`${output}/**`, { cwd: unitExpected, base: unitExpected, absolute: true, nodir: true }); // 预期文件目录结构
-    gulp.src(input, { cwd: watchTemp, base: watchTemp, nodir: true })
+    const expectFiles = glob.sync(`${slash(output)}/**`, { cwd: unitExpected, base: unitExpected, absolute: true, nodir: true }); // 预期文件目录结构
+    gulp.src(slash(input), { cwd: watchTemp, base: watchTemp, nodir: true })
         .pipe(mpNpm(options.mpNpmOptions))
         .on('error', done)
         .on('data', (file) => {
@@ -105,7 +106,7 @@ function testTempCase(input, output, done, options = {}) {
             } else {
                 expect(actualContent).toBe(expectContent);
             }
-            actualFiles.push(expectPath);
+            actualFiles.push(slash(expectPath));
         })
         .on('end', () => {
             // 实际比预期多出的文件 (watch模式下不用对比)
