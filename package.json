@@ -53,7 +53,7 @@
     "jest-extended": "^0.11.5",
     "jsonfile": "=6.0.1",
     "lint-staged": "^10.0.8",
-    "lodash": "=4.17.15",
+    "lodash": "=4.17.19",
     "miniprogram-api-promise": "=1.0.4",
     "miniprogram-api-typings": "=2.10.4",
     "mitt": "=1.2.0",
