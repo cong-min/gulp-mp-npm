@@ -1,2 +1,3 @@
 export { promisifyAll, promisify } from 'miniprogram-api-promise';
-export * as mitt from 'mitt';
+import mitt from 'mitt';
+export { mitt };

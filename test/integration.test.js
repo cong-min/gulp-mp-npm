@@ -39,7 +39,7 @@ function testIntegration(output, done) {
     const expectedOutput = path.join(integrationExpected, output);
     const gulpfilePath = path.join(integrationFixtures, 'gulpfile.js');
     global.src = path.join(integrationFixtures, 'src');
-    global.dist = tempOutput;
+    global.dist = tempOutput; // expectedOutput
     const gulpfile = jest.requireActual(gulpfilePath);
     gulpfile.build(() => {
         setTimeout(() => {
