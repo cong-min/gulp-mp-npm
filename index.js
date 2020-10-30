@@ -114,7 +114,11 @@ module.exports = function mpNpm(options = {}) {
                         if (!extracted[componentPath]) {
                             extracted[componentPath] = true;
                             // 打印出根首层依赖的日志
-                            if (compTree[componentPath]) log(`Extracted \`${colors.cyan(moduleId)}\``);
+                            if (compTree[componentPath]) {
+                                log(`Extracted \`${colors.cyan(
+                                    compTree[componentPath].moduleId || moduleId
+                                )}\``);
+                            }
                         }
                     });
                     next(null, file);
@@ -163,7 +167,11 @@ module.exports = function mpNpm(options = {}) {
                     if (!extracted[slashPath]) {
                         extracted[slashPath] = true;
                         // 打印出根首层依赖的日志
-                        if (tree[slashPath]) log(`Extracted \`${colors.cyan(moduleId)}\``);
+                        if (tree[slashPath]) {
+                            log(`Extracted \`${colors.cyan(
+                                tree[slashPath].moduleId || moduleId
+                            )}\``);
+                        }
                     }
 
                     // stream.push 追加文件
