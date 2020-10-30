@@ -1,5 +1,4 @@
 const path = require('path');
-const slash = require('slash');
 const lead = require('lead');
 const pumpify = require('pumpify');
 const through = require('through2');
@@ -7,6 +6,7 @@ const vfs = require('vinyl-fs');
 const logger = require('fancy-log');
 const colors = require('ansi-colors');
 const treeToList = require('tree-to-list');
+const { slash } = require('./lib/utils');
 const checkPackage = require('./lib/checkPackage');
 const lookupComponents = require('./lib/lookupComponents');
 const lookupDependencies = require('./lib/lookupDependencies');

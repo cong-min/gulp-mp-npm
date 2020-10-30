@@ -1,8 +1,8 @@
 const path = require('path');
-const slash = require('slash');
 const fs = require('fs');
 const glob = require('glob');
 const diff = require('lodash/difference')
+const { slash } = require('../lib/utils');
 const utils = require('./utils');
 
 const integrationFixtures = path.join(__dirname, 'fixtures/integration-test');

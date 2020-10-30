@@ -1,11 +1,11 @@
 const path = require('path');
-const slash = require('slash');
 const fs = require('fs');
 const del = require('del');
 const gulp = require('gulp');
 const glob = require('glob');
 const mkdirp = require('mkdirp');
 const diff = require('lodash/difference')
+const { slash } = require('../lib/utils');
 const utils = require('./utils');
 jest.mock('console');
 const mpNpm = require('../index');
