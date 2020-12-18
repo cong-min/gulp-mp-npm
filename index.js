@@ -139,13 +139,11 @@ module.exports = function mpNpm(options = {}) {
 
             const fileContent = String(file.contents); // 获取文件内容
             // 找出文件依赖树
-            const tree = await lookupDependencies(file.path, fileContent, {
+            const deps = lookupDependencies(file.path, fileContent, {
                 alias: mpPkgMathMap
             });
-            // 展开树并去重处理为映射
-            const depMap = treeToList(tree, 'tree');
             // 展开依赖文件路径列表
-            const depPaths = Object.keys(depMap).filter(e => !extracted[e]);
+            const depPaths = Object.keys(deps).filter(e => !extracted[e]);
 
             if (!depPaths.length) return next(null, file);
 
@@ -156,7 +154,7 @@ module.exports = function mpNpm(options = {}) {
 
                     const slashPath = slash(depFile.path);
 
-                    const matchedDep = depMap[slashPath]; // 找到匹配依赖信息
+                    const matchedDep = deps[slashPath]; // 找到匹配依赖信息
                     if (!matchedDep) return depNext(null, depFile);
 
                     const { name: packageName, moduleId } = matchedDep;
@@ -167,9 +165,9 @@ module.exports = function mpNpm(options = {}) {
                     if (!extracted[slashPath]) {
                         extracted[slashPath] = true;
                         // 打印出根首层依赖的日志
-                        if (tree[slashPath]) {
+                        if (deps[slashPath].isRoot) {
                             log(`Extracted \`${colors.cyan(
-                                tree[slashPath].moduleId || moduleId
+                                deps[slashPath].moduleId || moduleId
                             )}\``);
                         }
                     }
