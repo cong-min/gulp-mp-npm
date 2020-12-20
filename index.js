@@ -22,14 +22,19 @@ const defaultNpmDirname = 'miniprogram_npm';
 let pkgList = {};
 // 小程序专用 npm 依赖包名与构建路径的映射, 将作为 resolve 时的 alias
 const mpPkgMathMap = {};
-// 初始化 Promise
-let initPromise = null;
+// 项目初始化缓存 (一个项目只初始化一次)
+let projectInitCache = null;
 
 /**
  * gulp-mp-npm
  */
 module.exports = function mpNpm(options = {}) {
     const npmDirname = options.npmDirname || defaultNpmDirname;
+    let fullExtract = options.fullExtract || [];
+    if (!Array.isArray(fullExtract)) fullExtract = [fullExtract];
+
+    // 插件实例初始化缓存 (一次插件调用初始化一次)
+    let instanceInitCache = null;
 
     // 已提取的包文件夹路径
     const extracted = {};
@@ -39,15 +44,16 @@ module.exports = function mpNpm(options = {}) {
      */
     function init() {
         async function transform(file, enc, next) {
+            const stream = this;
             /* 准备 */
             // 统一文件 base path
             file.base = path.resolve(file.cwd, file.base);
             file.path = path.resolve(file.cwd, file.path);
 
             /* 初始化 */
-            // 只初始化一次
-            if (!initPromise) {
-                initPromise = (async () => {
+            // 仓库初始化：一个仓库只初始化一次
+            if (!projectInitCache) {
+                projectInitCache = (async () => {
                     // 找出所有依赖包
                     pkgList = await checkPackage.checkAllPkgs(process.cwd());
                     // 筛选出小程序专用 npm 依赖包
@@ -59,7 +65,53 @@ module.exports = function mpNpm(options = {}) {
                     });
                 })();
             }
-            await initPromise;
+            await projectInitCache;
+
+            // 插件初始化：一个仓库只初始化一次
+            if (!instanceInitCache) {
+                instanceInitCache = (async () => {
+                    // 找出需要全量提取的包
+                    const fullExtractInfos = fullExtract.map(moduleName => {
+                        const { packageName } = checkPackage.resolveDepFile(moduleName);
+                        if (!packageName || !pkgList[packageName]) return false;
+                        const pkgReg = new RegExp(`^${packageName}`);
+                        const modulePath = moduleName.replace(pkgReg,
+                            mpPkgMathMap[packageName] || path.posix.resolve('node_modules', moduleName));
+                        return {
+                            packageName,
+                            moduleName,
+                            path: modulePath,
+                        };
+                    }).filter(Boolean);
+
+                    const fullExtractGlobs = fullExtractInfos.map(e => `${e.path}/**`);
+                    if (!fullExtractGlobs.length) return;
+
+                    await (new Promise((resolve, reject) => {
+                        // 将需要全量提取的包追加至 stream 流中
+                        lead(vfs.src(fullExtractGlobs, { cwd: file.cwd, base: file.cwd })
+                            .pipe(through.obj((depFile, depEnc, depNext) => {
+                                if (depFile.isNull()
+                                    || /\/package\.json$/.test(depFile.path) // 剔除 package.json
+                                    || depFile.extname === '.md' // 剔除 *.md
+                                ) return depNext(null, depFile);
+
+                                const originPath = slash(depFile.path);
+                                const { packageName } = checkPackage.resolveDepFile(originPath);
+                                if (!packageName) return depNext(null, depFile);
+
+                                depFile.packageName = packageName;
+
+                                // stream.push 追加文件
+                                stream.push(depFile);
+                                return depNext(null, depFile);
+                            }))
+                            .on('finish', resolve)
+                            .on('error', reject));
+                    }));
+                })();
+            }
+            await instanceInitCache;
 
             next(null, file);
         }
@@ -96,7 +148,7 @@ module.exports = function mpNpm(options = {}) {
                 .pipe(through.obj((depFile, depEnc, depNext) => {
                     if (depFile.isNull()) return depNext(null, depFile);
 
-                    const originPath = depFile.path;
+                    const originPath = slash(depFile.path);
                     const { packageName } = checkPackage.resolveDepFile(originPath);
                     if (!packageName) return depNext(null, depFile);
 
@@ -109,15 +161,15 @@ module.exports = function mpNpm(options = {}) {
                 .on('finish', () => {
                     // 打印日志
                     Object.keys(npmComponents).forEach((componentPath) => {
-                        const { moduleId } = npmComponents[componentPath];
+                        const { packageName, moduleId } = npmComponents[componentPath];
                         // 记录提取
                         if (!extracted[componentPath]) {
                             extracted[componentPath] = true;
+                            if (!compTree[componentPath]) return;
+                            const moduleName = compTree[componentPath].moduleId || moduleId;
                             // 打印出根首层依赖的日志
-                            if (compTree[componentPath]) {
-                                log(`Extracted \`${colors.cyan(
-                                    compTree[componentPath].moduleId || moduleId
-                                )}\``);
+                            if (moduleName && moduleName.indexOf(packageName) === 0) {
+                                log(`Extracted \`${colors.cyan(moduleName)}\``);
                             }
                         }
                     });

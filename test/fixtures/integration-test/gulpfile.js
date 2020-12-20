@@ -23,7 +23,7 @@ const sourcemap = {
 // options
 const srcOptions = global.srcOptions || { base: src };
 const watchOptions = global.watchOptions || { events: ['add', 'change'] };
-const mpNpmOptions = global.mpNpmOptions || { npmDirname: 'miniprogram_npm' };
+const mpNpmOptions = global.mpNpmOptions || { npmDirname: 'miniprogram_npm', fullExtract: ['weui-miniprogram', 'mitt/dist'] };
 
 // 文件匹配路径
 const globs = {

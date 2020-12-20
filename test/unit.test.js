@@ -65,6 +65,19 @@ describe('单元测试', () => {
         ], 'customize-npmDirname', done, { mpNpmOptions });
     });
 
+    test('配置 fullExtract 全量提取某个包', (done) => {
+        const mpNpmOptions = { npmDirname: 'dist', fullExtract: ['weui-miniprogram', 'mitt'] };
+        testUnitCase([
+            'import-normal-dep.js',
+            'import-normal-dep.wxss',
+            'import-special-dep.js',
+            'import-special-dep.json',
+            'import-special-dep.wxss',
+            'import-deep-scope-dep.js',
+            'require-dep.js'
+        ], 'options-fullExtract', done, { mpNpmOptions });
+    });
+
 });
 
 // 测试单元用例
