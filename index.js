@@ -91,12 +91,12 @@ module.exports = function mpNpm(options = {}) {
                         // 将需要全量提取的包追加至 stream 流中
                         lead(vfs.src(fullExtractGlobs, { cwd: file.cwd, base: file.cwd })
                             .pipe(through.obj((depFile, depEnc, depNext) => {
+                                const originPath = slash(depFile.path);
                                 if (depFile.isNull()
                                     || /\/package\.json$/.test(depFile.path) // 剔除 package.json
                                     || depFile.extname === '.md' // 剔除 *.md
                                 ) return depNext(null, depFile);
 
-                                const originPath = slash(depFile.path);
                                 const { packageName } = checkPackage.resolveDepFile(originPath);
                                 if (!packageName) return depNext(null, depFile);
 
