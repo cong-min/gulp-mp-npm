@@ -93,7 +93,7 @@ module.exports = function mpNpm(options = {}) {
                             .pipe(through.obj((depFile, depEnc, depNext) => {
                                 const originPath = slash(depFile.path);
                                 if (depFile.isNull()
-                                    || /\/package\.json$/.test(depFile.path) // 剔除 package.json
+                                    || /\/package\.json$/.test(originPath) // 剔除 package.json
                                     || depFile.extname === '.md' // 剔除 *.md
                                 ) return depNext(null, depFile);
 
