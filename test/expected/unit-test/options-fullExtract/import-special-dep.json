@@ -1,6 +1,7 @@
 {
   "usingComponents": {
     "mp-msg": "./dist/weui-miniprogram/msg/msg",
+    "mp-sticky": "./dist/@miniprogram-component-plus/sticky",
     "page": "./local-dep/page/page"
   }
 }
