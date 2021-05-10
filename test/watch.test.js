@@ -7,7 +7,7 @@ const mkdirp = require('mkdirp');
 const diff = require('lodash/difference')
 const { slash } = require('../lib/utils');
 const utils = require('./utils');
-jest.mock('console');
+jest.mock('fancy-log');
 const mpNpm = require('../index');
 
 const unitFixtures = path.join(__dirname, 'fixtures/unit-test');
@@ -16,6 +16,7 @@ const watchTemp = path.join(__dirname, 'temp/watch');
 
 // config
 jest.setTimeout(30000);
+
 beforeEach(() => {
     mkdirp.sync(watchTemp);
 });

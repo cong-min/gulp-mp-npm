@@ -5,11 +5,12 @@ const glob = require('glob');
 const diff = require('lodash/difference');
 const { slash } = require('../lib/utils');
 const utils = require('./utils');
-jest.mock('console');
+jest.mock('fancy-log');
 const mpNpm = require('../index');
 
 const unitFixtures = path.join(__dirname, 'fixtures/unit-test');
 const unitExpected = path.join(__dirname, 'expected/unit-test');
+const unitTemp = path.join(__dirname, 'temp/unit-test');
 
 // config
 jest.setTimeout(30000);
@@ -87,6 +88,7 @@ function testUnitCase(input, output, done, options = {}) {
     gulp.src(input, { cwd: unitFixtures, base: unitFixtures, nodir: true })
         .pipe(mpNpm(options.mpNpmOptions))
         // .pipe(gulp.dest(path.join(unitExpected, output)))
+        .pipe(gulp.dest(path.join(unitTemp, output)))
         .on('error', done)
         .on('data', (file) => {
             expect(file).not.toBeNil();
@@ -101,11 +103,11 @@ function testUnitCase(input, output, done, options = {}) {
             // 文件内容是否符合预期
             const actualContent = utils.normaliseEOL(file.contents)
             const expectContent = utils.normaliseEOL(fs.readFileSync(expectPath, 'utf8'));
-            if (actualContent.length > 5000 || expectContent.length > 5000) {
-                expect(actualContent.length).toBe(expectContent.length);
-            } else {
+            // if (actualContent.length > 5000 || expectContent.length > 5000) {
+            //     expect(actualContent.length).toBe(expectContent.length);
+            // } else {
                 expect(actualContent).toBe(expectContent);
-            }
+            // }
             actualFiles.push(slash(expectPath));
         })
         .on('end', () => {

@@ -11,7 +11,7 @@ const integrationTemp = path.join(__dirname, 'temp/integration-test');
 
 // config
 jest.setTimeout(30000);
-jest.mock('console');
+jest.mock('fancy-log');
 
 beforeEach(() => {
     jest.resetModules();
