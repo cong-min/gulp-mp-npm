@@ -89,7 +89,6 @@ function testUnitCase(input, output, done, options = {}) {
         .pipe(mpNpm(options.mpNpmOptions))
         // .pipe(gulp.dest(path.join(unitExpected, output)))
         .pipe(gulp.dest(path.join(unitTemp, output)))
-        .on('error', done)
         .on('data', (file) => {
             expect(file).not.toBeNil();
             expect(file.path).not.toBeNil();
@@ -103,11 +102,11 @@ function testUnitCase(input, output, done, options = {}) {
             // 文件内容是否符合预期
             const actualContent = utils.normaliseEOL(file.contents)
             const expectContent = utils.normaliseEOL(fs.readFileSync(expectPath, 'utf8'));
-            // if (actualContent.length > 5000 || expectContent.length > 5000) {
-            //     expect(actualContent.length).toBe(expectContent.length);
-            // } else {
+            if (actualContent.length > 5000 || expectContent.length > 5000) {
+                expect(actualContent.length).toBe(expectContent.length);
+            } else {
                 expect(actualContent).toBe(expectContent);
-            // }
+            }
             actualFiles.push(slash(expectPath));
         })
         .on('end', () => {

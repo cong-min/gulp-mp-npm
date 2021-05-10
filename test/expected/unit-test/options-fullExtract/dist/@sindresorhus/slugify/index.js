@@ -1,12 +1,11 @@
-'use strict';
-const escapeStringRegexp = require('../../escape-string-regexp/index.js');
-const transliterate = require('../transliterate/index.js');
-const builtinOverridableReplacements = require('./overridable-replacements');
+import escapeStringRegexp from '../../escape-string-regexp/index.js';
+import transliterate from '../transliterate/index.js';
+import builtinOverridableReplacements from './overridable-replacements.js';
 
 const decamelize = string => {
 	return string
 		// Separate capitalized words.
-		.replace(/([A-Z]{2,})([a-z\d]+)/g, '$1 $2')
+		.replace(/([A-Z]{2,})(\d+)/g, '$1 $2')
 		.replace(/([a-z\d]+)([A-Z]{2,})/g, '$1 $2')
 
 		.replace(/([a-z\d])([A-Z])/g, '$1 $2')
@@ -21,7 +20,7 @@ const removeMootSeparators = (string, separator) => {
 		.replace(new RegExp(`^${escapedSeparator}|${escapedSeparator}$`, 'g'), '');
 };
 
-module.exports = (string, options) => {
+export default function slugify(string, options) {
 	if (typeof string !== 'string') {
 		throw new TypeError(`Expected a string, got \`${typeof string}\``);
 	}
@@ -57,11 +56,42 @@ module.exports = (string, options) => {
 
 	string = string.replace(patternSlug, options.separator);
 	string = string.replace(/\\/g, '');
-	string = removeMootSeparators(string, options.separator);
+	if (options.separator) {
+		string = removeMootSeparators(string, options.separator);
+	}
 
 	if (shouldPrependUnderscore) {
 		string = `_${string}`;
 	}
 
 	return string;
-};
+}
+
+export function slugifyWithCounter() {
+	const occurrences = new Map();
+
+	const countable = (string, options) => {
+		string = slugify(string, options);
+
+		if (!string) {
+			return '';
+		}
+
+		const stringLower = string.toLowerCase();
+		const numberless = occurrences.get(stringLower.replace(/(?:-\d+?)+?$/, '')) || 0;
+		const counter = occurrences.get(stringLower);
+		occurrences.set(stringLower, typeof counter === 'number' ? counter + 1 : 1);
+		const newCounter = occurrences.get(stringLower) || 2;
+		if (newCounter >= 2 || numberless > 2) {
+			string = `${string}-${newCounter}`;
+		}
+
+		return string;
+	};
+
+	countable.reset = () => {
+		occurrences.clear();
+	};
+
+	return countable;
+}

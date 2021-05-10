@@ -1,7 +1,6 @@
-'use strict';
-const deburr = require('../../lodash.deburr/index.js');
-const escapeStringRegexp = require('../../escape-string-regexp/index.js');
-const builtinReplacements = require('./replacements');
+import deburr from '../../lodash.deburr/index.js';
+import escapeStringRegexp from '../../escape-string-regexp/index.js';
+import builtinReplacements from './replacements.js';
 
 const doCustomReplacements = (string, replacements) => {
 	for (const [key, value] of replacements) {
@@ -12,7 +11,7 @@ const doCustomReplacements = (string, replacements) => {
 	return string;
 };
 
-module.exports = (string, options) => {
+export default function transliterate(string, options) {
 	if (typeof string !== 'string') {
 		throw new TypeError(`Expected a string, got \`${typeof string}\``);
 	}
@@ -32,4 +31,4 @@ module.exports = (string, options) => {
 	string = deburr(string);
 
 	return string;
-};
+}
