@@ -191,9 +191,10 @@ module.exports = function mpNpm(options = {}) {
 
             const fileContent = String(file.contents); // 获取文件内容
             // 找出文件依赖树
-            const deps = lookupDependencies(file.path, fileContent, {
+            const options = {
                 alias: mpPkgMathMap
-            });
+            }
+            const deps = lookupDependencies(file.path, fileContent, options, {}, true, extracted);
             // 展开依赖文件路径列表
             const depPaths = Object.keys(deps).filter(e => !extracted[e]);
 
