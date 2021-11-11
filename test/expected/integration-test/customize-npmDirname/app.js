@@ -10,7 +10,7 @@ App({
     onError: function () { },
     onPageNotFound: function () { },
     globalData: {},
-    emitter: index_1.mitt(),
+    emitter: (0, index_1.mitt)(),
 });
 
 //# sourceMappingURL=app.js.map

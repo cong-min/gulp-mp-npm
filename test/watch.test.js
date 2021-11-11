@@ -15,7 +15,7 @@ const unitExpected = path.join(__dirname, 'expected/unit-test');
 const watchTemp = path.join(__dirname, 'temp/watch');
 
 // config
-jest.setTimeout(30000);
+jest.setTimeout(60000);
 
 beforeEach(() => {
     mkdirp.sync(watchTemp);

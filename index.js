@@ -112,7 +112,6 @@ module.exports = function mpNpm(options = {}) {
                 })();
             }
             await instanceInitCache;
-
             next(null, file);
         }
         return through.obj(transform);
