@@ -1,6 +1,0 @@
-{
-  "usingComponents": {
-    "mp-msg": "../../dist/weui-miniprogram/msg/msg",
-    "quickstart": "/components/quickstart/quickstart"
-  }
-}
