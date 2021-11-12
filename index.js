@@ -78,6 +78,13 @@ module.exports = function mpNpm(options = {}) {
                         if(wildcardRs){
                             moduleName =  wildcardRs[1];
                             suffix = wildcardRs[2];
+                        } else {
+                           // 支持fullExtract传入绝对路径，例如 'npm/lib/a.wxs'
+                           const absRs = moduleName.match(/(.*)(\/.*\..*)$/);
+                           if(absRs){
+                             moduleName =  absRs[1];
+                             suffix = absRs[2];
+                           }
                         }
                         const { packageName } = checkPackage.resolveDepFile(moduleName);
                         if (!packageName || !pkgList[packageName]) return false;
