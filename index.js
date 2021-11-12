@@ -24,20 +24,27 @@ let pkgList = {};
 const mpPkgMathMap = {};
 // 项目初始化缓存 (一个项目只初始化一次)
 let projectInitCache = null;
-
+// 复杂项目多次进入mpNpm时可共享缓存
+const globalCache = {
+    // 多实例只初始化一次
+    instanceInitCache: false,
+    // 多实例共享依赖文件解析
+    extracted: {}
+}
 /**
  * gulp-mp-npm
  */
 module.exports = function mpNpm(options = {}) {
     const npmDirname = options.npmDirname || defaultNpmDirname;
+    const useGlobalCache = options.useGlobalCache
     let fullExtract = options.fullExtract || [];
     if (!Array.isArray(fullExtract)) fullExtract = [fullExtract];
 
     // 插件实例初始化缓存 (一次插件调用初始化一次)
-    let instanceInitCache = null;
+    let instanceInitCache = useGlobalCache ? globalCache.instanceInitCache : null;
 
     // 已提取的包文件夹路径
-    const extracted = {};
+    const extracted = useGlobalCache ? globalCache.extracted : {};
 
     /** init
      * 初始化
@@ -110,6 +117,7 @@ module.exports = function mpNpm(options = {}) {
                             .on('error', reject));
                     }));
                 })();
+                if(useGlobalCache) globalCache.instanceInitCache = instanceInitCache;
             }
             await instanceInitCache;
             next(null, file);
