@@ -72,19 +72,27 @@ module.exports = function mpNpm(options = {}) {
                 instanceInitCache = (async () => {
                     // 找出需要全量提取的包
                     const fullExtractInfos = fullExtract.map(moduleName => {
-                        const { packageName } = checkPackage.resolveDepFile(moduleName);
-                        if (!packageName || !pkgList[packageName]) return false;
-                        const pkgReg = new RegExp(`^${packageName}`);
-                        const modulePath = moduleName.replace(pkgReg,
-                            mpPkgMathMap[packageName] || path.posix.resolve('node_modules', moduleName));
-                        return {
-                            packageName,
-                            moduleName,
-                            path: modulePath,
-                        };
-                    }).filter(Boolean);
+                         // 支持fullExtract传入通配符，例如 'npm/**/*.wxs'
+                         const wildcardRs = moduleName.match(/(.*?)(\/\*.*)/);
+                         let suffix = '/**';
+                         if(wildcardRs){
+                             moduleName =  wildcardRs[1];
+                             suffix = wildcardRs[2];
+                         }
+                         const { packageName } = checkPackage.resolveDepFile(moduleName);
+                         if (!packageName || !pkgList[packageName]) return false;
+                         const pkgReg = new RegExp(`^${packageName}`);
+                         const modulePath = moduleName.replace(pkgReg,
+                             mpPkgMathMap[packageName] || path.posix.resolve('node_modules', moduleName));
+                         return {
+                             packageName,
+                             moduleName,
+                             path: modulePath,
+                             suffix,
+                         };
+                     }).filter(Boolean);
 
-                    const fullExtractGlobs = fullExtractInfos.map(e => `${e.path}/**`);
+                     const fullExtractGlobs = fullExtractInfos.map(e => `${e.path}${e.suffix}`);
                     if (!fullExtractGlobs.length) return;
 
                     await (new Promise((resolve, reject) => {
