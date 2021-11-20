@@ -76,7 +76,7 @@ describe('单元测试', () => {
                 'weui-wxss/dist/example/actionsheet/',
                 'weui-wxss/dist/example/article/article.wxml',
                 'weui-wxss/dist/example/badge/!(*.wxml)',
-                'weui-wxss/dist/example/images/**/*.?(js|gif) ',
+                'weui-wxss/dist/example/images/**/*.?(js|gif)',
             ]
         };
         testUnitCase([
