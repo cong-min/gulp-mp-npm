@@ -65,9 +65,20 @@ describe('单元测试', () => {
             'require-dep.js'
         ], 'customize-npmDirname', done, { mpNpmOptions });
     });
-
+    // https://github.com/isaacs/node-glob
     test('配置 fullExtract 全量提取某个包', (done) => {
-        const mpNpmOptions = { npmDirname: 'dist', fullExtract: ['weui-miniprogram', 'mitt'] };
+        const mpNpmOptions = {
+            npmDirname: 'dist',
+            fullExtract: [
+                'mitt',
+                'weui-miniprogram',
+                'weui-wxss/dist/example/mixin',
+                'weui-wxss/dist/example/actionsheet/',
+                'weui-wxss/dist/example/article/article.wxml',
+                'weui-wxss/dist/example/badge/!(*.wxml)',
+                'weui-wxss/dist/example/images/**/*.?(js|gif) ',
+            ]
+        };
         testUnitCase([
             'import-normal-dep.js',
             'import-normal-dep.wxss',
