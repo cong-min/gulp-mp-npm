@@ -200,16 +200,16 @@ module.exports = function mpNpm(options = {}) {
 
             const fileContent = String(file.contents); // 获取文件内容
             // 找出文件依赖树
-            const options = {
+            const lookupOpt = {
                 alias: mpPkgMathMap
             };
             /*
             注意，这里的 extracted 存储的是已经提取过的npm包文件路径map，
             将它传入 lookupDependencies 的目的是在 lookupDependencies 内部分析一个文件路径时，
             遇到已经分析过的npm包时，可以直接跳过，以加快整个项目的分析提取速度，
-            尤其在项目中越多的文件引用了同一个npm包时越能提现效果。
+            尤其在项目中越多的文件引用了同一个npm包时越能体现效果。
             */
-            const deps = lookupDependencies(file.path, fileContent, options, {}, true, extracted); // extracted 见上面注释
+            const deps = lookupDependencies(file.path, fileContent, lookupOpt, {}, true, extracted); // extracted 见上面注释
             // 展开依赖文件路径列表
             const depPaths = Object.keys(deps).filter(e => !extracted[e]);
 
