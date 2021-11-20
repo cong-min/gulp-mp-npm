@@ -72,34 +72,29 @@ module.exports = function mpNpm(options = {}) {
                 instanceInitCache = (async () => {
                     // 找出需要全量提取的包
                     const fullExtractInfos = fullExtract.map(moduleName => {
-                        // 支持fullExtract传入通配符，例如 'npm/**/*.wxs'
-                        const wildcardRs = moduleName.match(/(.*?)(\/\*.*)/);
-                        let suffix = '/**';
-                        if(wildcardRs){
-                            moduleName =  wildcardRs[1];
-                            suffix = wildcardRs[2];
-                        } else {
-                           // 支持fullExtract传入绝对路径，例如 'npm/lib/a.wxs'
-                           const absRs = moduleName.match(/(.*)(\/.*\..*)$/);
-                           if(absRs){
-                             moduleName =  absRs[1];
-                             suffix = absRs[2];
-                           }
-                        }
                         const { packageName } = checkPackage.resolveDepFile(moduleName);
                         if (!packageName || !pkgList[packageName]) return false;
-                        const pkgReg = new RegExp(`^${packageName}`);
-                        const modulePath = moduleName.replace(pkgReg,
-                            mpPkgMathMap[packageName] || path.posix.resolve('node_modules', moduleName));
+                        let modulePath = '';
+                        if (mpPkgMathMap[packageName]) {
+                            // 小程序包
+                            const pkgReg = new RegExp(`^${packageName}`);
+                            modulePath = moduleName.replace(pkgReg, mpPkgMathMap[packageName]);
+                        } else {
+                            // 普通包
+                            modulePath = path.posix.resolve('node_modules', moduleName);
+                        }
+                        // 无glob规则，则补齐后缀
+                        if (!modulePath.match(/[!?.*[\]()]/)) {
+                            modulePath = `${modulePath.replace(/\/$/, '')}/**`;
+                        }
                         return {
                             packageName,
                             moduleName,
                             path: modulePath,
-                            suffix,
                         };
                     }).filter(Boolean);
 
-                    const fullExtractGlobs = fullExtractInfos.map(e => `${e.path}${e.suffix}`);
+                    const fullExtractGlobs = fullExtractInfos.map(e => `${e.path}`);
                     if (!fullExtractGlobs.length) return;
 
                     await (new Promise((resolve, reject) => {
@@ -207,7 +202,7 @@ module.exports = function mpNpm(options = {}) {
             // 找出文件依赖树
             const options = {
                 alias: mpPkgMathMap
-            }
+            };
             /*
             注意，这里的 extracted 存储的是已经提取过的npm包文件路径map，
             将它传入 lookupDependencies 的目的是在 lookupDependencies 内部分析一个文件路径时，
