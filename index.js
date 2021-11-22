@@ -30,13 +30,13 @@ const globalCache = {
     instanceInitCache: false,
     // 多实例共享依赖文件解析
     extracted: {}
-}
+};
 /**
  * gulp-mp-npm
  */
 module.exports = function mpNpm(options = {}) {
     const npmDirname = options.npmDirname || defaultNpmDirname;
-    const useGlobalCache = options.useGlobalCache
+    const { useGlobalCache } = options;
     let fullExtract = options.fullExtract || [];
     if (!Array.isArray(fullExtract)) fullExtract = [fullExtract];
 
@@ -101,7 +101,7 @@ module.exports = function mpNpm(options = {}) {
                         };
                     }).filter(Boolean);
 
-                    const fullExtractGlobs = fullExtractInfos.map(e => `${e.path}`);
+                    const fullExtractGlobs = fullExtractInfos.map(e => e.path);
                     if (!fullExtractGlobs.length) return;
 
                     await (new Promise((resolve, reject) => {
@@ -127,7 +127,7 @@ module.exports = function mpNpm(options = {}) {
                             .on('error', reject));
                     }));
                 })();
-                if(useGlobalCache) globalCache.instanceInitCache = instanceInitCache;
+                if (useGlobalCache) globalCache.instanceInitCache = instanceInitCache;
             }
             await instanceInitCache;
             next(null, file);
