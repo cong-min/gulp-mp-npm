@@ -104,16 +104,21 @@ const wxss = () => gulp.src('src/**/*.wxss')
 默认值: `[]`
 
 默认情况插件只会按需提取的依赖与组件，可通过该属性指定包名对整个包进行完整提取，主要用于提取分析不到的依赖。\
-例如设置 `options.fullExtract = ['weui-miniprogram']` 表示整个 `weui-miniprogram` 包及时未使用到也会被全量提取
+1、支持使用包名，即使未使用到也会被全量提取 ，例如`options.fullExtract = ['weui-miniprogram']`
+
+2、支持使用glob表达式来精准匹配目录或文件，例如`options.fullExtract = ['npm/**/*.wxs']`，参见[node-glob](https://github.com/isaacs/node-glob)
 
 #### options.useGlobalCache
 
 类型: `Boolean`\
 默认值: `false`
 
-默认情况下，对于较复杂的项目会根据不同文件类型，创建多个mpNpm实例
+默认情况下，对于较复杂的项目会根据不同文件类型，创建多个mpNpm实例：
+
 1、x个实例就会重复执行x次fullExtract插件的逻辑
+
 2、gulp.watch时，任何一个文件变更都会触发fullExtract
+
 3、extracted解析标记在实例结束后会清理，watch文件时，每次文件变更会重新解析，耗时较长
 
 例如设置 `options.useGlobalCache = true` 表示多个实例共享初始化和依赖解析缓存，会大幅提高watch时的性能。建议大量页面使用npm包的项目开启。

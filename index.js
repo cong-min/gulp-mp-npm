@@ -30,13 +30,13 @@ const globalCache = {
     instanceInitCache: false,
     // 多实例共享依赖文件解析
     extracted: {}
-}
+};
 /**
  * gulp-mp-npm
  */
 module.exports = function mpNpm(options = {}) {
     const npmDirname = options.npmDirname || defaultNpmDirname;
-    const useGlobalCache = options.useGlobalCache
+    const { useGlobalCache } = options;
     let fullExtract = options.fullExtract || [];
     if (!Array.isArray(fullExtract)) fullExtract = [fullExtract];
 
@@ -81,9 +81,19 @@ module.exports = function mpNpm(options = {}) {
                     const fullExtractInfos = fullExtract.map(moduleName => {
                         const { packageName } = checkPackage.resolveDepFile(moduleName);
                         if (!packageName || !pkgList[packageName]) return false;
-                        const pkgReg = new RegExp(`^${packageName}`);
-                        const modulePath = moduleName.replace(pkgReg,
-                            mpPkgMathMap[packageName] || path.posix.resolve('node_modules', moduleName));
+                        let modulePath = '';
+                        if (mpPkgMathMap[packageName]) {
+                            // 小程序包
+                            const pkgReg = new RegExp(`^${packageName}`);
+                            modulePath = moduleName.replace(pkgReg, mpPkgMathMap[packageName]);
+                        } else {
+                            // 普通包
+                            modulePath = path.posix.resolve('node_modules', moduleName);
+                        }
+                        // 无glob规则，则补齐后缀
+                        if (!modulePath.match(/[!?.*[\]()]/)) {
+                            modulePath = `${modulePath.replace(/\/$/, '')}/**`;
+                        }
                         return {
                             packageName,
                             moduleName,
@@ -91,7 +101,7 @@ module.exports = function mpNpm(options = {}) {
                         };
                     }).filter(Boolean);
 
-                    const fullExtractGlobs = fullExtractInfos.map(e => `${e.path}/**`);
+                    const fullExtractGlobs = fullExtractInfos.map(e => e.path);
                     if (!fullExtractGlobs.length) return;
 
                     await (new Promise((resolve, reject) => {
@@ -117,7 +127,7 @@ module.exports = function mpNpm(options = {}) {
                             .on('error', reject));
                     }));
                 })();
-                if(useGlobalCache) globalCache.instanceInitCache = instanceInitCache;
+                if (useGlobalCache) globalCache.instanceInitCache = instanceInitCache;
             }
             await instanceInitCache;
             next(null, file);
@@ -198,16 +208,16 @@ module.exports = function mpNpm(options = {}) {
 
             const fileContent = String(file.contents); // 获取文件内容
             // 找出文件依赖树
-            const options = {
+            const lookupOpt = {
                 alias: mpPkgMathMap
-            }
+            };
             /*
             注意，这里的 extracted 存储的是已经提取过的npm包文件路径map，
             将它传入 lookupDependencies 的目的是在 lookupDependencies 内部分析一个文件路径时，
             遇到已经分析过的npm包时，可以直接跳过，以加快整个项目的分析提取速度，
-            尤其在项目中越多的文件引用了同一个npm包时越能提现效果。
+            尤其在项目中越多的文件引用了同一个npm包时越能体现效果。
             */
-            const deps = lookupDependencies(file.path, fileContent, options, {}, true, extracted); // extracted 见上面注释
+            const deps = lookupDependencies(file.path, fileContent, lookupOpt, {}, true, extracted); // extracted 见上面注释
             // 展开依赖文件路径列表
             const depPaths = Object.keys(deps).filter(e => !extracted[e]);
 

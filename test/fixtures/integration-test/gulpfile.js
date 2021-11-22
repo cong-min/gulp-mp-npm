@@ -23,7 +23,9 @@ const sourcemap = {
 // options
 const srcOptions = global.srcOptions || { base: src };
 const watchOptions = global.watchOptions || { events: ['add', 'change'] };
-const mpNpmOptions = global.mpNpmOptions || { npmDirname: 'miniprogram_npm', fullExtract: ['weui-miniprogram', 'mitt/dist'] };
+// fix: 移除无用的'mitt/dist'，因为src/utils/index模块依赖了mitt，能够解析依赖
+// feat: 新增glob示例
+const mpNpmOptions = global.mpNpmOptions || { npmDirname: 'miniprogram_npm', fullExtract: ['weui-miniprogram', 'weui-wxss/dist/example/images/**/*.?(js|gif)'] };
 
 // 文件匹配路径
 const globs = {
