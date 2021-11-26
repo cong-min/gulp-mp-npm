@@ -34,7 +34,8 @@
     "resolve": "^1.20.0",
     "through2": "^4.0.2",
     "tree-to-list": "^2.0.0",
-    "vinyl-fs": "^3.0.3"
+    "vinyl-fs": "^3.0.3",
+    "xml-parser": "^1.2.1"
   },
   "devDependencies": {
     "@miniprogram-component-plus/sticky": "=1.0.1",
