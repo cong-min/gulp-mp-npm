@@ -53,6 +53,10 @@ describe('单元测试', () => {
         testUnitCase('require-dep.js', 'require-dep.js/', done);
     });
 
+    test('wxml中带有wxs的依赖引入',(done)=>{
+        testUnitCase('import-wxs-dep.json','import-wxs-dep.json/',done);
+    })
+
     test('自定义 npmDirname 提取文件夹', (done) => {
         const mpNpmOptions = { npmDirname: 'dist' };
         testUnitCase([
